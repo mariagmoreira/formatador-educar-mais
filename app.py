@@ -27,7 +27,7 @@ if uploaded is not None:
             for t in blocks["titles"]:
                 st.write("-", t)
             st.write(f"**Autores encontrados:** {len(blocks['authors'])}")
-            for name, bio in blocks["authors"]:
+            for name, orcid_url, bio in blocks["authors"]:
                 st.write("-", name)
             st.write(f"**Resumos encontrados:** {', '.join(a['label'] for a in blocks['abstracts'])}")
             st.write(f"**Seções no corpo:** {sum(1 for it in blocks['body'] if it[0] == 'heading')}")
