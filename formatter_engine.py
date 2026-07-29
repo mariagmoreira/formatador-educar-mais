@@ -719,7 +719,7 @@ def build_document(blocks, out_path, modelo_path=None):
     footnote_texts = []
     authors_p = d.add_paragraph()
     authors_p.paragraph_format.left_indent = Inches(LOGO_WIDTH_IN + TITLE_CELL_LEFT_MARGIN_IN)
-    authors_p.paragraph_format.space_before = Pt(10)
+    authors_p.paragraph_format.space_before = Pt(0)
     authors_p.paragraph_format.space_after = Pt(10)
     authors_p.paragraph_format.line_spacing = 1.2
     for idx, (name_only, orcid_url, bio) in enumerate(blocks["authors"]):
