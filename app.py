@@ -4,7 +4,7 @@ from formatter_engine import convert
 
 st.set_page_config(
     page_title="Formatador — Revista Educar Mais",
-    page_icon="logo.png",
+    page_icon="app_logo.png",
     layout="centered",
 )
 
@@ -49,7 +49,7 @@ st.markdown(
 
 # ---- Cabeçalho com logo ----
 try:
-    with open("logo.png", "rb") as f:
+    with open("app_logo.png", "rb") as f:
         logo_b64 = base64.b64encode(f.read()).decode()
     logo_html = f'<img src="data:image/png;base64,{logo_b64}" />'
 except FileNotFoundError:
