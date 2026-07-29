@@ -691,6 +691,7 @@ def build_document(blocks, out_path, modelo_path=None):
     TITLE_CELL_LEFT_MARGIN_IN = 0.15
     _set_cell_margins(title_cell, top=0, bottom=0,
                        left=int(TITLE_CELL_LEFT_MARGIN_IN * 1440), right=100)
+    title_cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
     logo_p = logo_cell.paragraphs[0]
     logo_p.paragraph_format.space_after = Pt(0)
@@ -717,10 +718,9 @@ def build_document(blocks, out_path, modelo_path=None):
         r.italic = True
 
     footnote_texts = []
-    authors_p = d.add_paragraph()
-    authors_p.paragraph_format.left_indent = Inches(LOGO_WIDTH_IN + TITLE_CELL_LEFT_MARGIN_IN)
-    authors_p.paragraph_format.space_before = Pt(0)
-    authors_p.paragraph_format.space_after = Pt(10)
+    authors_p = title_cell.add_paragraph()
+    authors_p.paragraph_format.space_before = Pt(6)
+    authors_p.paragraph_format.space_after = Pt(4)
     authors_p.paragraph_format.line_spacing = 1.2
     for idx, (name_only, orcid_url, bio) in enumerate(blocks["authors"]):
         r = authors_p.add_run(name_only)
