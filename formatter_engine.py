@@ -688,6 +688,7 @@ def build_document(blocks, out_path, modelo_path=None):
         col.width = w
     _set_cell_border(title_cell, 'left', color="FF7F26", size=18)
     _set_cell_margins(logo_cell, top=0, bottom=0, left=0, right=0)
+    logo_cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
     TITLE_CELL_LEFT_MARGIN_IN = 0.15
     _set_cell_margins(title_cell, top=0, bottom=0,
                        left=int(TITLE_CELL_LEFT_MARGIN_IN * 1440), right=100)
