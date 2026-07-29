@@ -64,22 +64,48 @@ def _extract_inline_image(paragraph):
     """Se o parágrafo contém uma imagem embutida (figura do corpo do
     artigo), devolve (bytes_da_imagem, largura_emu, altura_emu).
     Sem isso, figuras eram descartadas em silêncio — igual acontecia
-    com as tabelas antes da correção."""
+    com as tabelas antes da correção.
+
+    Cobre os dois formatos que o Word usa pra imagem embutida:
+    - moderno (w:drawing / a:blip) — a maioria dos casos
+    - legado VML (w:pict / v:imagedata) — comum em imagens coladas de
+      versões antigas do Word ou de outros programas
+    """
+    VML_NS = "urn:schemas-microsoft-com:vml"
     for run in paragraph.runs:
         blip = run._r.find('.//' + qn('a:blip'))
-        if blip is None:
-            continue
-        rId = blip.get(qn('r:embed'))
-        if not rId:
-            continue
-        try:
-            image_part = paragraph.part.related_parts[rId]
-        except KeyError:
-            continue
-        extent = run._r.find('.//' + qn('wp:extent'))
-        cx = int(extent.get('cx')) if extent is not None else None
-        cy = int(extent.get('cy')) if extent is not None else None
-        return image_part.blob, cx, cy
+        if blip is not None:
+            rId = blip.get(qn('r:embed'))
+            if rId:
+                try:
+                    image_part = paragraph.part.related_parts[rId]
+                except KeyError:
+                    continue
+                extent = run._r.find('.//' + qn('wp:extent'))
+                cx = int(extent.get('cx')) if extent is not None else None
+                cy = int(extent.get('cy')) if extent is not None else None
+                return image_part.blob, cx, cy
+
+        imagedata = run._r.find(f'.//{{{VML_NS}}}imagedata')
+        if imagedata is not None:
+            rId = imagedata.get(qn('r:id'))
+            if rId:
+                try:
+                    image_part = paragraph.part.related_parts[rId]
+                except KeyError:
+                    continue
+                cx = cy = None
+                shape = run._r.find(f'.//{{{VML_NS}}}shape')
+                style = shape.get('style') if shape is not None else None
+                if style:
+                    import re as _re
+                    wmatch = _re.search(r'width:([\d.]+)pt', style)
+                    hmatch = _re.search(r'height:([\d.]+)pt', style)
+                    if wmatch:
+                        cx = int(float(wmatch.group(1)) * 12700)
+                    if hmatch:
+                        cy = int(float(hmatch.group(1)) * 12700)
+                return image_part.blob, cx, cy
     return None
 
 
