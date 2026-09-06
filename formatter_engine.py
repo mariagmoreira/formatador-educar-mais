@@ -220,8 +220,17 @@ def classify(doc_path):
         is_heading = (item.style.name.startswith("Heading") or
                       bool(SECTION_HEAD_RE.match(txt) and len(txt) < 120 and txt.isupper()))
         is_caption = bool(CAPTION_RE.match(txt))
+        left_indent = item.paragraph_format.left_indent
+        is_quote = bool(left_indent and left_indent.cm >= 3)
         runs_info = [(r.text, bool(r.bold), bool(r.italic)) for r in item.runs] or [(txt, False, False)]
-        kind = "heading" if is_heading else ("caption" if is_caption else "para")
+        if is_quote:
+            kind = "quote"
+        elif is_heading:
+            kind = "heading"
+        elif is_caption:
+            kind = "caption"
+        else:
+            kind = "para"
         blocks["body"].append((kind, txt, runs_info))
 
     if ref_idx is not None:
@@ -804,6 +813,22 @@ def build_document(blocks, out_path, modelo_path=None):
             p.paragraph_format.space_before = Pt(10)
             p.paragraph_format.space_after = Pt(4)
             p.paragraph_format.keep_with_next = True
+            for rtext, rbold, ritalic in runs_info:
+                if not rtext:
+                    continue
+                r = p.add_run(rtext)
+                r.font.name = "Tahoma"
+                r.font.size = Pt(10)
+                r.bold = rbold
+                r.italic = ritalic
+        elif kind == "quote":
+            txt, runs_info = item[1], item[2]
+            p = d.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+            p.paragraph_format.left_indent = Cm(4)
+            p.paragraph_format.line_spacing = 1.0
+            p.paragraph_format.space_before = Pt(6)
+            p.paragraph_format.space_after = Pt(10)
             for rtext, rbold, ritalic in runs_info:
                 if not rtext:
                     continue
